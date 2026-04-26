@@ -108,7 +108,7 @@ const Navbar = () => {
       {/* 🔥 LOGIN REMINDER */}
       {showReminder && (
         <div className="fixed bottom-5 right-5 bg-white shadow-lg p-4 rounded-lg z-50 w-[250px]">
-          <p className="text-sm mb-2">Login for better experience 🔥</p>
+          <p className="text-sm mb-2 dark:text-black">Login for better experience 🔥</p>
           <button
             onClick={() => navigate("/login")}
             className="bg-blue-500 text-white px-3 py-1 rounded w-full">
