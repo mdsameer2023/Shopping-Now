@@ -140,7 +140,7 @@ const Navbar = () => {
           </div>
 
           {/* 🔍 SEARCH (RESPONSIVE) */}
-          <div className="relative w-full md:w-[50%]">
+          <div className="relative w-full md:w-[50%] dark:text-black">
             <input
               type="text"
               placeholder="Search for Products..."
