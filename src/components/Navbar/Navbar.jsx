@@ -152,7 +152,7 @@ const Navbar = () => {
 
             {/* 🔥 DROPDOWN */}
             {suggestions.length > 0 && (
-              <div className="absolute top-12 left-0 w-full bg-white dshadow-lg rounded-lg z-50 max-h-72 overflow-y-auto">
+              <div className="absolute top-12 left-0 w-full bg-white shadow-lg rounded-lg z-50 max-h-72 overflow-y-auto">
                 {suggestions.map((item, index) => (
                   <div
                     key={item.id}

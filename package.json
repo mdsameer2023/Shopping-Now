@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.16.2",
     "aos": "^2.3.4",
+    "firebase": "^12.12.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.11.0",
     "react": "^18.2.0",
@@ -18,11 +20,7 @@
     "react-icons": "^4.12.0",
     "react-router-dom": "^7.14.2",
     "react-slick": "^0.29.0",
-    "slick-carousel": "^1.8.1",
-    "@auth0/auth0-react": "^2.16.2",
-    "firebase": "^12.12.1",
-    "react-image-magnify": "^2.7.4"
-  
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
