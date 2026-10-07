@@ -11,3 +11,18 @@ html {
 .slick-slide {
     pointer-events: auto;
 }
+
+@keyframes product-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.product-enter {
+    animation: product-enter 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-enter {
+        animation: none;
+    }
+}

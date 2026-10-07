@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import Sidebar from "../components/Products/Sidebar";
 import ProductCard from "../components/Products/ProductCard";
-import { getProducts, matchesSearch, matchesCategory } from "../services/products";
+import { getProducts, getCachedProducts, matchesSearch, matchesCategory } from "../services/products";
 
 const ProductsPage = () => {
   const location = useLocation();
@@ -13,8 +13,8 @@ const ProductsPage = () => {
   const searchFromURL = query.get("search") || "";
   const categoryFromURL = query.get("category") || "";
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(() => getCachedProducts() || []);
+  const [loading, setLoading] = useState(() => getCachedProducts() === null);
   const [error, setError] = useState("");
   const [search, setSearch] = useState(searchFromURL);
   const [category, setCategory] = useState(
@@ -22,7 +22,9 @@ const ProductsPage = () => {
   );
   const [sort, setSort] = useState("");
   const [price, setPrice] = useState(20000);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(() =>
+    [...new Set((getCachedProducts() || []).map((item) => item.category))],
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -77,7 +79,7 @@ const ProductsPage = () => {
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   if (loading) {
-    return <h2 className="text-center mt-10">Loading...</h2>;
+    return <h2 role="status" className="text-center mt-10 motion-safe:animate-pulse">Loading...</h2>;
   }
   if (error) return <h2 className="text-center mt-10">{error}</h2>;
 
@@ -114,7 +116,7 @@ const ProductsPage = () => {
         {currentProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 ">
             {currentProducts.map((item) => (
-              <div key={item.id} className="flex">
+              <div key={item.id} className="flex product-enter">
                 <ProductCard item={item} />
               </div>
             ))}

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { getProducts, formatPrice } from "../../services/products";
+import { getProducts, getCachedProducts, formatPrice } from "../../services/products";
 
 const Products = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(() => getCachedProducts() || []);
+  const [loading, setLoading] = useState(() => getCachedProducts() === null);
   const [error, setError] = useState("");
 
   // 🔥 FETCH API
@@ -25,13 +25,13 @@ const Products = () => {
   }, []);
 
   if (loading) {
-    return <h2 className="text-center mt-10">Loading...</h2>;
+    return <h2 role="status" className="text-center mt-10 motion-safe:animate-pulse">Loading...</h2>;
   }
   if (error) return <h2 className="text-center mt-10">{error}</h2>;
   if (!products.length) return <h2 className="text-center mt-10">No products available</h2>;
 
   return (
-    <div className="mt-14 mb-12">
+    <div className="mt-14 mb-12 product-enter">
       <div className="container">
         {/* Header */}
         <div className="text-center mb-10 max-w-[600px] mx-auto">
@@ -44,13 +44,17 @@ const Products = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-5">
-          {products.map((data) => (
+          {products.map((data, index) => (
             <Link to={`/product/${data.id}`} key={data.id}>
               <div className="space-y-3 cursor-pointer hover:scale-105 transition duration-300">
                 {/* Image */}
                 <img
                   src={data.image}
                   alt={data.title}
+                  loading={index < 5 ? "eager" : "lazy"}
+                  decoding="async"
+                  width="150"
+                  height="220"
                   className="h-[220px] w-[150px] object-contain bg-white p-2 rounded-md"
                 />
 

@@ -1,4 +1,26 @@
 const PRODUCTS_API = "https://kolzsticks.github.io/Free-Ecommerce-Products-Api/main/products.json";
+const CACHE_KEY = "shopping-now:products:v1";
+const CACHE_TTL = 5 * 60 * 1000;
+let productCache;
+
+export function getCachedProducts() {
+  try {
+    const cached = productCache || JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (cached && Number.isFinite(cached.savedAt) &&
+        Date.now() - cached.savedAt >= 0 && Date.now() - cached.savedAt < CACHE_TTL &&
+        Array.isArray(cached.products) && cached.products.every((item) =>
+          typeof item.id === "string" && typeof item.name === "string" &&
+          typeof item.category === "string" && typeof item.image === "string" &&
+          Number.isFinite(item.priceCents))) {
+      productCache = cached;
+      return cached.products;
+    }
+  } catch {
+    // Storage can be disabled or contain invalid data; fetch normally instead.
+  }
+  productCache = undefined;
+  return null;
+}
 
 // Preserve API fields and provide aliases for existing cards and contexts.
 export function normalizeProduct(product) {
@@ -47,6 +69,8 @@ export function matchesCategory(product, category) {
 let productsRequest;
 
 export function getProducts() {
+  const cached = getCachedProducts();
+  if (cached) return Promise.resolve(cached);
   if (!productsRequest) {
     productsRequest = (async () => {
       const controller = new AbortController();
@@ -56,14 +80,22 @@ export function getProducts() {
         if (!response.ok) throw new Error(`Product API returned ${response.status}`);
         const data = await response.json();
         if (!Array.isArray(data)) throw new Error("Invalid product API response");
-        return data.map(normalizeProduct);
+        const products = data.map(normalizeProduct);
+        productCache = { savedAt: Date.now(), products };
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(productCache));
+        } catch {
+          // Keep the in-memory cache when browser storage is unavailable.
+        }
+        return products;
       } finally {
         clearTimeout(timeout);
       }
     })().catch((error) => {
-      productsRequest = undefined;
       console.error("Product API Error:", error);
       throw error;
+    }).finally(() => {
+      productsRequest = undefined;
     });
   }
   return productsRequest;
