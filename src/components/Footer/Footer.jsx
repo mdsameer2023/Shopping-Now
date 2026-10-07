@@ -178,7 +178,7 @@ const Footer = () => {
             <div className="flex flex-col sm:flex-row gap-4 text-sm text-gray-300">
               <div className="flex items-center gap-2">
                 <FaLocationArrow />
-                <span>Bihar, Gaya Rafiganj</span>
+                <span>Gaya, Bihar</span>
               </div>
               <div className="flex items-center gap-2">
                 <FaMobileAlt />
