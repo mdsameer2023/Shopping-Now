@@ -8,11 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { CiFacebook, CiTwitter } from "react-icons/ci";
 import { FaInstagram, FaWhatsapp, FaRegHeart } from "react-icons/fa";
+import { getProduct, formatPrice } from "../services/products";
 
 const ProductDetails = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
+  const [error, setError] = useState("");
   const [selectedImg, setSelectedImg] = useState("");
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState("desc");
@@ -22,27 +24,36 @@ const ProductDetails = () => {
 
   // 🔥 FETCH SINGLE PRODUCT
   useEffect(() => {
-    fetch(`https://fakestoreapi.com/products/${id}`)
-      .then((res) => res.json())
+    let active = true;
+    setProduct(null);
+    setError("");
+    getProduct(id)
       .then((data) => {
         const formatted = {
           id: data.id,
           title: data.title,
-          price: Math.floor(data.price * 80),
+          price: data.price,
           category: data.category,
           img: data.image,
-          rating: data.rating?.rate || 4,
-          reviews: data.rating?.count || 100,
+          rating: data.rating?.stars ?? 0,
+          reviews: data.rating?.count ?? 0,
           desc: data.description,
           stock: true,
         };
 
-        setProduct(formatted);
-        setSelectedImg(formatted.img);
+        if (active) {
+          setProduct(formatted);
+          setSelectedImg(formatted.img);
+        }
+      })
+      .catch(() => {
+        if (active) setError("Unable to load product. Please refresh the page.");
       });
+    return () => { active = false; };
   }, [id]);
 
   // 🔄 LOADING
+  if (error) return <h1 className="text-center mt-20">{error}</h1>;
   if (!product) {
     return <h1 className="text-center mt-20">Loading...</h1>;
   }
@@ -81,7 +92,7 @@ const ProductDetails = () => {
             </span>
           </div>
 
-          <p className="text-xl text-primary mt-2">₹{product.price}</p>
+          <p className="text-xl text-primary mt-2">{formatPrice(product.price)}</p>
 
           {/* STOCK */}
           <p className="text-green-500 mt-2 font-semibold">In Stock ✅</p>
@@ -94,7 +105,8 @@ const ProductDetails = () => {
             <input
               type="number"
               value={qty}
-              onChange={(e) => setQty(e.target.value)}
+              min="1"
+              onChange={(e) => setQty(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
               className="border w-16 p-1"
             />
           </div>

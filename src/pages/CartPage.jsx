@@ -1,3 +1,4 @@
+import { formatPrice } from "../services/products";
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
 import { Link } from "react-router-dom";
@@ -46,7 +47,7 @@ const CartPage = () => {
 
                   <div>
                     <h2 className="font-bold">{item.title}</h2>
-                    <p className="text-gray-500">₹{item.price}</p>
+                    <p className="text-gray-500">{formatPrice(item.price)}</p>
                   </div>
                 </div>
 
@@ -59,7 +60,7 @@ const CartPage = () => {
                 />
 
                 {/* TOTAL */}
-                <p className="font-semibold">₹{item.price * item.qty}</p>
+                <p className="font-semibold">{formatPrice(item.price * item.qty)}</p>
 
                 {/* REMOVE */}
                 <button
@@ -78,29 +79,29 @@ const CartPage = () => {
 
           <div className="flex justify-between mb-2">
             <span>Subtotal:</span>
-            <span>₹{subtotal}</span>
+            <span>{formatPrice(subtotal)}</span>
           </div>
 
           <div className="flex justify-between mb-2">
             <span>Shipping:</span>
-            <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+            <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
           </div>
 
           <div className="flex justify-between mb-2">
             <span>Handling Fee:</span>
-            <span>₹{handling}</span>
+            <span>{formatPrice(handling)}</span>
           </div>
 
           <div className="flex justify-between mb-2">
             <span>GST (18%):</span>
-            <span>₹{gst}</span>
+            <span>{formatPrice(gst)}</span>
           </div>
 
           <hr className="my-3" />
 
           <div className="flex justify-between font-bold text-lg">
             <span>Total:</span>
-            <span>₹{total}</span>
+            <span>{formatPrice(total)}</span>
           </div>
 
           <Link to="/checkout">

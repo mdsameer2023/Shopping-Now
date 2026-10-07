@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { formatPrice } from "../../services/products";
 
-const Sidebar = ({ setCategory, setSort, setPrice, categories = [] }) => {
-  const [selected, setSelected] = useState([]);
+const Sidebar = ({ setCategory, setSort, setPrice, categories = [], selected = [], price }) => {
 
   const handleCheckbox = (value) => {
     let updated = [...selected];
@@ -12,7 +11,6 @@ const Sidebar = ({ setCategory, setSort, setPrice, categories = [] }) => {
       updated.push(value);
     }
 
-    setSelected(updated);
     setCategory(updated);
   };
 
@@ -29,15 +27,15 @@ const Sidebar = ({ setCategory, setSort, setPrice, categories = [] }) => {
             <label key={i} className="block capitalize">
               <input
                 type="checkbox"
-                checked={selected.includes(cat)}
-                onChange={() => handleCheckbox(cat)}
+                checked={selected.includes(cat.toLowerCase())}
+                onChange={() => handleCheckbox(cat.toLowerCase())}
                 className="mr-2"
               />
               {cat}
             </label>
           ))
         ) : (
-          <p className="text-sm text-gray-400">Loading...</p>
+          <p className="text-sm text-gray-400">No categories available</p>
         )}
       </div>
 
@@ -49,11 +47,12 @@ const Sidebar = ({ setCategory, setSort, setPrice, categories = [] }) => {
           type="range"
           min="0"
           max="20000"
+          value={price}
           onChange={(e) => setPrice(e.target.value)}
           className="w-full"
         />
 
-        <p className="text-sm text-gray-500">Up to ₹{20000}</p>
+        <p className="text-sm text-gray-500">Up to {formatPrice(price)}</p>
       </div>
 
       {/* 🔄 SORT */}

@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import Sidebar from "../components/Products/Sidebar";
 import ProductCard from "../components/Products/ProductCard";
+import { getProducts, matchesSearch, matchesCategory } from "../services/products";
 
 const ProductsPage = () => {
   const location = useLocation();
@@ -13,6 +14,8 @@ const ProductsPage = () => {
   const categoryFromURL = query.get("category") || "";
 
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState(searchFromURL);
   const [category, setCategory] = useState(
     categoryFromURL ? [categoryFromURL.toLowerCase()] : [],
@@ -26,43 +29,38 @@ const ProductsPage = () => {
 
   useEffect(() => {
     setSearch(searchFromURL);
-    if (categoryFromURL) {
-      setCategory([categoryFromURL.toLowerCase()]);
-    }
+    setCategory(categoryFromURL ? [categoryFromURL.toLowerCase()] : []);
+    setCurrentPage(1);
   }, [searchFromURL, categoryFromURL]);
 
   // ✅ FETCH PRODUCTS
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
+    let active = true;
+    getProducts()
       .then((data) => {
-        const apiProducts = data.map((item) => ({
-          id: item.id,
-          title: item.title,
-          price: Math.floor(item.price * 80),
-          category: item.category.toLowerCase(), // ✅ FIX
-          img: item.image,
-        }));
-        setProducts(apiProducts);
+        if (active) {
+          setProducts(data);
+          setCategories([...new Set(data.map((item) => item.category))]);
+        }
+      })
+      .catch(() => {
+        if (active) setError("Unable to load products. Please refresh the page.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-  }, []);
-
-  // ✅ FETCH CATEGORY
-  useEffect(() => {
-    fetch("https://fakestoreapi.com/products/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data));
+    return () => { active = false; };
   }, []);
 
   // 🔍 FILTER
   let filtered = products.filter((item) =>
-    item.title.toLowerCase().includes(search.toLowerCase()),
+    matchesSearch(item, search),
   );
 
   // ✅ CATEGORY FIX
   if (category.length > 0) {
     filtered = filtered.filter((item) =>
-      category.includes(item.category.toLowerCase()),
+      category.some((value) => matchesCategory(item, value)),
     );
   }
 
@@ -78,20 +76,23 @@ const ProductsPage = () => {
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  if (products.length === 0) {
+  if (loading) {
     return <h2 className="text-center mt-10">Loading...</h2>;
   }
+  if (error) return <h2 className="text-center mt-10">{error}</h2>;
 
   return (
     <div className="flex flex-col md:flex-row gap-5 p-4 sm:p-5">
       {/* 🔥 SIDEBAR */}
       <Sidebar
+        selected={category}
+        price={price}
         setCategory={(val) => {
           setCategory(val.map((c) => c.toLowerCase())); // ✅ FIX
           setCurrentPage(1);
         }}
         setSort={setSort}
-        setPrice={setPrice}
+        setPrice={(value) => { setPrice(Number(value)); setCurrentPage(1); }}
         categories={categories}
       />
 
@@ -120,7 +121,7 @@ const ProductsPage = () => {
           </div>
         ) : (
           <p className="text-center mt-20 text-2xl text-red-500 text-bold ">
-            No products found 😢
+            No products available
           </p>
         )}
 
@@ -150,7 +151,7 @@ const ProductsPage = () => {
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
-            disabled={currentPage === totalPages}
+            disabled={currentPage >= totalPages}
             className="p-2 border rounded-full">
             <ChevronRight size={18} />
           </button>

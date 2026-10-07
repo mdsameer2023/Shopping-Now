@@ -14,17 +14,18 @@ import UserDropdown from "./UserDropdown";
 import { getUserLocation } from "./Location";
 
 import { WishlistContext } from "../../context/WishlistContext";
+import { getProducts, matchesSearch, formatPrice } from "../../services/products";
 
 const Menu = [
   { name: "For You", link: "/" },
-  { name: "Fashion", link: "/products?category=women's clothing" },
+  { name: "Fashion", link: "/products?category=Fashion%20%26%20Apparel" },
   { name: "Mobile", link: "/products?category=mobile" },
-  { name: "Beauty", link: "/products?category=jewelery" },
-  { name: "Home", link: "/" },
-  { name: "Electronic", link: "/products?category=electronics" },
+  { name: "Beauty", link: "/products?category=Beauty%20%26%20Personal%20Care" },
+  { name: "Home", link: "/products?category=Home%20%26%20Kitchen" },
+  { name: "Electronic", link: "/products?category=Electronics%20%26%20Gadgets" },
   { name: "Laptop", link: "/products?category=laptop" },
   { name: "Book", link: "/products?category=book" },
-  { name: "Toy & Games", link: "/products?category=toy&game" },
+  { name: "Toy & Games", link: "/products?category=toy%26game" },
 ];
 
 const Navbar = () => {
@@ -43,9 +44,11 @@ const Navbar = () => {
 
   // ✅ FETCH FAKE API
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
-      .then((data) => setAllProducts(data));
+    let active = true;
+    getProducts()
+      .then((data) => { if (active) setAllProducts(data); })
+      .catch(() => { if (active) setAllProducts([]); });
+    return () => { active = false; };
   }, []);
 
   // ⏱️ LOGIN REMINDER
@@ -64,7 +67,7 @@ const Navbar = () => {
 
     if (value.length > 0) {
       const filtered = allProducts.filter((item) =>
-        item.title.toLowerCase().includes(value.toLowerCase()),
+        matchesSearch(item, value),
       );
       setSuggestions(filtered.slice(0, 6));
     } else {
@@ -88,7 +91,7 @@ const Navbar = () => {
       if (activeIndex >= 0) {
         navigate(`/product/${suggestions[activeIndex].id}`);
       } else {
-        navigate(`/products?search=${search}`);
+        navigate(`/products?search=${encodeURIComponent(search)}`);
       }
       setSuggestions([]);
     }
@@ -108,7 +111,9 @@ const Navbar = () => {
       {/* 🔥 LOGIN REMINDER */}
       {showReminder && (
         <div className="fixed bottom-5 right-5 bg-white shadow-lg p-4 rounded-lg z-50 w-[250px]">
-          <p className="text-sm mb-2 dark:text-black">Login for better experience 🔥</p>
+          <p className="text-sm mb-2 dark:text-black">
+            Login for better experience 🔥
+          </p>
           <button
             onClick={() => navigate("/login")}
             className="bg-blue-500 text-white px-3 py-1 rounded w-full">
@@ -172,7 +177,7 @@ const Navbar = () => {
                     <div>
                       <p className="text-sm">{item.title.slice(0, 30)}</p>
                       <p className="text-xs text-gray-500">
-                        ₹{Math.floor(item.price * 80)}
+                        {formatPrice(item.price)}
                       </p>
                     </div>
                   </div>

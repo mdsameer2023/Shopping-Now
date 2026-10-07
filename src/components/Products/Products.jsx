@@ -1,23 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { getProducts, formatPrice } from "../../services/products";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // 🔥 FETCH API
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
+    let active = true;
+    getProducts()
       .then((data) => {
-        setProducts(data);
+        if (active) setProducts(data);
       })
-      .catch((err) => console.log(err));
+      .catch(() => {
+        if (active) setError("Unable to load products. Please refresh the page.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, []);
 
-  if (products.length === 0) {
+  if (loading) {
     return <h2 className="text-center mt-10">Loading...</h2>;
   }
+  if (error) return <h2 className="text-center mt-10">{error}</h2>;
+  if (!products.length) return <h2 className="text-center mt-10">No products available</h2>;
 
   return (
     <div className="mt-14 mb-12">
@@ -61,7 +72,7 @@ const Products = () => {
 
                   {/* Price */}
                   <p className="font-bold text-primary">
-                    ₹{Math.floor(data.price * 80)}
+                    {formatPrice(data.price)}
                   </p>
                 </div>
               </div>

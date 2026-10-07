@@ -1,3 +1,4 @@
+import { formatPrice } from "../../services/products";
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ item }) => {
@@ -8,7 +9,7 @@ const ProductCard = ({ item }) => {
           <img src={item.img} className="h-full w-40 object-contain p-2" />
         </div>
         <h2 className="font-semibold">{item.title}</h2>
-        <p className="text-primary font-bold">₹{item.price}</p>
+        <p className="text-primary font-bold">{formatPrice(item.price)}</p>
       </div>
     </Link>
   );

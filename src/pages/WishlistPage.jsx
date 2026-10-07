@@ -1,3 +1,4 @@
+import { formatPrice } from "../services/products";
 import { useContext } from "react";
 import { WishlistContext } from "../context/WishlistContext";
 import { CartContext } from "../context/CartContext";
@@ -47,7 +48,7 @@ const WishlistPage = () => {
                   <h2 className="font-semibold text-lg">{item.title}</h2>
 
                   {/* PRICE */}
-                  <p className="text-primary font-bold">₹{item.price}</p>
+                  <p className="text-primary font-bold">{formatPrice(item.price)}</p>
 
                   {/* STOCK */}
                   <p

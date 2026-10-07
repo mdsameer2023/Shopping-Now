@@ -1,3 +1,4 @@
+import { formatPrice } from "../services/products";
 import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
@@ -153,7 +154,7 @@ const CheckoutPage = () => {
               <span>
                 {item.title} × {item.qty}
               </span>
-              <span>₹{item.price * item.qty}</span>
+              <span>{formatPrice(item.price * item.qty)}</span>
             </div>
           ))}
 
@@ -161,19 +162,19 @@ const CheckoutPage = () => {
 
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span>₹{subtotal}</span>
+            <span>{formatPrice(subtotal)}</span>
           </div>
 
           <div className="flex justify-between">
             <span>Shipping</span>
-            <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+            <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
           </div>
 
           <hr className="my-3" />
 
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>₹{total}</span>
+            <span>{formatPrice(total)}</span>
           </div>
 
           <button
